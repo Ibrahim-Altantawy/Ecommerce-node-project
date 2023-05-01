@@ -102,7 +102,7 @@ export const creatOrder = asyncErrorHandler(async (req, res, next) => {
       { $push: { usedBy: req.user._id } }
     );
   }
-  
+
   /**==clear user cart== */
   await cartModel.updateOne(
     { userId: _id },
@@ -123,7 +123,7 @@ export const creatOrder = asyncErrorHandler(async (req, res, next) => {
             product_data: {
               name: product.productName,
             },
-            unit_amount: product.unitPrice,
+            unit_amount: product.unitPrice*100,
           },
           quantity: product.quantity,
         };
