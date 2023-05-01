@@ -1,5 +1,4 @@
 import {Stripe} from 'stripe';
-
  async function payment({
     stripe =new Stripe(process.env.stripKey),
     payment_method_types=['card'],
@@ -10,14 +9,18 @@ import {Stripe} from 'stripe';
         success_url=process.env.success_url,
         discounts=[],
         line_items=[],
-        percent_off=0,
+        percent_off,
         duration='once'
 
 }={}){
-    const cuponPayment =await stripe.coupons.create({
-        percent_off,
-        duration,
-    })
+    var cuponPayment;
+    if(percent_off){
+        cuponPayment =await stripe.coupons.create({
+            percent_off,
+            duration,
+        })
+    }
+   
           const session=await stripe.checkout.sessions.create({
         payment_method_types,
         mode,

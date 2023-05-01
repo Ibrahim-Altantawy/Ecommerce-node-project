@@ -45,6 +45,7 @@ export const creatOrder = asyncErrorHandler(async (req, res, next) => {
     if (!coupon || coupon.expireDate < new Date(Date.now())) {
       return next(new Error("In_Valid or Used Cupon", { cause: 400 }));
     }
+    
     req.body.coupon = coupon;
   }
   /**========== product====================== */
@@ -128,6 +129,8 @@ export const creatOrder = asyncErrorHandler(async (req, res, next) => {
           quantity: product.quantity,
         };
       }),
+      percent_off:req.body.coupon?.amount
+    
     });
     return res
       .status(201)
