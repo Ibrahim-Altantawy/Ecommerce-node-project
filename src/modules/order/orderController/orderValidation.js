@@ -13,6 +13,7 @@ export const creatOderChema = joi
             productId: generalFields.id,
             quantity: joi.number().positive().min(1).required(),
           }).required() ).required(),
+          paymentType:joi.string({allow:['cash','card']})
   }).required();
 export const cancelOrder = joi.object({
     orderId: generalFields.id,

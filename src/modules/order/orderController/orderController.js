@@ -2,15 +2,16 @@ import { asyncErrorHandler } from "./../../../utlis/errorHandling.js";
 import cuponModel from "./../../../../DB/dbModels/cuponModel.js";
 import productModel from "./../../../../DB/dbModels/productModel.js";
 import orderModel from "../../../../DB/dbModels/orderModel.js";
-import cartModel from "./../../../../DB/dbModels/cartModel.js"; 
+import cartModel from "./../../../../DB/dbModels/cartModel.js";
+import payment from "../../../utlis/payment.js";
 
 export const getAllOrder = asyncErrorHandler(async (req, res, next) => {
-  const{_id}=req.user;
-  const order=await orderModel.find({userId:_id})
-  if(!order){
-    return next(new Error('there is not order fo you untill now'))
+  const { _id } = req.user;
+  const order = await orderModel.find({ userId: _id });
+  if (!order) {
+    return next(new Error("there is not order fo you untill now"));
   }
-  res.status(200).json({ message: "that is all your order" ,orders:order});
+  res.status(200).json({ message: "that is all your order", orders: order });
 });
 const globaleStatus = [
   { status: "waitPayment", message: "your order has been cancelled" },
@@ -87,7 +88,10 @@ export const creatOrder = asyncErrorHandler(async (req, res, next) => {
   for (const product of listProductOrder) {
     await productModel.findByIdAndUpdate(
       { _id: product.productId },
-      { $inc: { stock: -product.quantity },$addToSet:{soldTo:{userId:_id,quantity:product.quantity}} },
+      {
+        $inc: { stock: -product.quantity },
+        $addToSet: { soldTo: { userId: _id, quantity: product.quantity } },
+      },
       { new: true }
     );
   }
@@ -103,8 +107,38 @@ export const creatOrder = asyncErrorHandler(async (req, res, next) => {
     { userId: _id },
     { $pull: { products: { productId: { $in: listProductOrderIds } } } }
   );
+  /**============payment============= */
+  if (order.paymentType == "card") {
+    const session = await payment({
+      customer_email: req.user.email,
+      metadata: {
+        orderId: order._id.toString(),
+      },
+      cancel_url: `${process.env.cancel_url}/orderId=${order._id.toString()}`,
+      line_items: order.products.map((product) => {
+        return {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: product.productName,
+            },
+            unit_amount: product.unitPrice,
+          },
+          quantity: product.quantity,
+        };
+      }),
+    });
+    return res
+      .status(201)
+      .json({
+        message: "created order Done 😉",
+        order,
+        session,
+        url: session.url,
+      });
+  }
 
-  return res.status(200).json({ message: "created order Done 😉", order });
+  return res.status(201).json({ message: "created order Done 😉", order });
 });
 /**======cancel order======================= */
 export const cancelOrder = asyncErrorHandler(async (req, res, next) => {
@@ -122,7 +156,7 @@ export const cancelOrder = asyncErrorHandler(async (req, res, next) => {
         for (const product of order.products) {
           await productModel.findByIdAndUpdate(
             { _id: product.productId },
-            { $inc: { stock: product.quantity } ,$pull:{soldTo:_id}},
+            { $inc: { stock: product.quantity }, $pull: { soldTo: _id } },
             { new: true }
           );
           /**==update user cart============== */
@@ -132,7 +166,7 @@ export const cancelOrder = asyncErrorHandler(async (req, res, next) => {
           );
           /**====================================== */
         }
-         /**====================================== */
+        /**====================================== */
         /**== pull user id in used arrar of cupon == */
         await cuponModel.findByIdAndUpdate(
           { _id: order.coupoId },
