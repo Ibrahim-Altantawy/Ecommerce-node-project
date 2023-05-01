@@ -9,8 +9,15 @@ import {Stripe} from 'stripe';
         cancel_url=process.env.cancel_url,
         success_url=process.env.success_url,
         discounts=[],
-        line_items=[]
+        line_items=[],
+        percent_off=0,
+        duration='once'
+
 }={}){
+    const cuponPayment =await stripe.coupons.create({
+        percent_off,
+        duration,
+    })
           const session=await stripe.checkout.sessions.create({
         payment_method_types,
         mode,
@@ -18,7 +25,7 @@ import {Stripe} from 'stripe';
         metadata,
         cancel_url,
         success_url,
-        discounts,
+        discounts:cuponPayment?[{coupon:cuponPayment.id}]:[],
         line_items
      })
     return session; 
