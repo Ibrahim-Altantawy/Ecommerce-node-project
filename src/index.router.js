@@ -27,7 +27,14 @@ const initApp = (app, express) => {
   //     await res.header("Access-Control-Allow-Methods", "*");
   //     next();
   //   });
-  app.use(express.json());
+  app.use((req,res,next)=>{
+    if(req.originalUrl=='order/webhook'){
+      next();
+    }else{
+      express.json()(req,res,next)
+    }
+  })
+  // app.use(express.json());
   app.use("/auth", authRouter);
   app.use("/user", authRouter);
   app.use("/product", productRouter);

@@ -3,7 +3,7 @@ import cuponModel from "./../../../../DB/dbModels/cuponModel.js";
 import productModel from "./../../../../DB/dbModels/productModel.js";
 import orderModel from "../../../../DB/dbModels/orderModel.js";
 import cartModel from "./../../../../DB/dbModels/cartModel.js";
-import payment from "../../../utlis/payment.js";
+import {payment} from "../../../utlis/payment.js";
 
 export const getAllOrder = asyncErrorHandler(async (req, res, next) => {
   const { _id } = req.user;
