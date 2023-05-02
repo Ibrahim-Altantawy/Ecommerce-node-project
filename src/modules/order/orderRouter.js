@@ -25,5 +25,5 @@ router.post(
   );
 
   /**======webhook====== */
-router.post('/webhook', express.raw({type: 'application/json'}),webhook);
+router.post('/webhook', express.raw({type: 'application/json'}),webhook());
 export default router;
