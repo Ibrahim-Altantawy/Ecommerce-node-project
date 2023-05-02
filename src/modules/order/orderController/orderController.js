@@ -111,10 +111,11 @@ export const creatOrder = asyncErrorHandler(async (req, res, next) => {
   );
   /**============payment============= */
   if (order.paymentType == "card") {
+    console.log({ orderId: order._id.toString()})
     const session = await payment({
       customer_email: req.user.email,
       metadata: {
-        orderId: order._id.toString(),
+        orderId: order._id.toString,
       },
       cancel_url: `${process.env.cancel_url}/orderId=${order._id.toString()}`,
       line_items: order.products.map((product) => {
@@ -137,7 +138,7 @@ export const creatOrder = asyncErrorHandler(async (req, res, next) => {
       .json({
         message: "created order Done 😉",
         order,
-        session,
+      session,
         url: session.url,
       });
   }

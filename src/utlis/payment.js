@@ -6,7 +6,7 @@ export async function payment({
   payment_method_types = ["card"],
   mode = "payment",
   customer_email,
-  metadata = {},
+  metadata,
   cancel_url = process.env.cancel_url,
   success_url = process.env.success_url,
   discounts = [],
