@@ -111,7 +111,7 @@ export const creatOrder = asyncErrorHandler(async (req, res, next) => {
   );
   /**============payment============= */
   if (order.paymentType == "card") {
-    console.log({ orderId: order._id.toString()})
+   
     const session = await payment({
       customer_email: req.user.email,
       metadata: {
