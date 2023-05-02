@@ -28,7 +28,6 @@ const initApp = (app, express) => {
   //     next();
   //   });
   app.use((req,res,next)=>{
-    console.log(req.originalUrl);
     if(req.originalUrl=='/order/webhook'){
       next();
     }else{
