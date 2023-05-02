@@ -10,6 +10,7 @@ import cartRouter from "./modules/cart/cartRouter.js";
 import orderRouter from "./modules/order/orderRouter.js";
 import productRouter from "./modules/product/productRouter.js";
 import cors from "cors";
+import { webhook } from "./utlis/payment.js";
 const initApp = (app, express) => {
   app.use(cors());
   //   const whiteList = ["http://127.0.0.1:5000"];
@@ -27,14 +28,15 @@ const initApp = (app, express) => {
   //     await res.header("Access-Control-Allow-Methods", "*");
   //     next();
   //   });
-  app.use((req,res,next)=>{
-    if(req.originalUrl=='/order/webhook'){
-      next();
-    }else{
-      express.json({})(req,res,next)
-    }
-  })
-  // app.use(express.json());
+  // app.use((req,res,next)=>{
+  //   if(req.originalUrl=='/order/webhook'){
+  //     next();
+  //   }else{
+  //     express.json({})(req,res,next)
+  //   }
+  // })
+  app.post('/order/webhook', express.raw({type: 'application/json'}),webhook);
+  app.use(express.json());
   app.use("/auth", authRouter);
   app.use("/user", authRouter);
   app.use("/product", productRouter);
